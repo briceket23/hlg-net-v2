@@ -1,0 +1,26 @@
+ABL-coordattn:
+  use_boost: true
+  use_coordattn: true
+  use_gate: true
+ABL-detach:
+  detach_gate: true
+  use_boost: true
+  use_gate: true
+ABL-noaux:
+  lambda_gate: 0.0
+  use_boost: true
+  use_gate: true
+B5:
+  use_species_head: true
+B6:
+  use_chmcnn: true
+M-aux:
+  use_boost: false
+  use_gate: true
+M-full:
+  use_boost: true
+  use_gate: true
+M-prob:
+  fixed_budget: true
+  use_gate: true
+  use_prob: true

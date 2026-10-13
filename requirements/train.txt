@@ -1,0 +1,4 @@
+-r prep.txt
+torch>=2.1
+timm>=0.9
+pyarrow>=12

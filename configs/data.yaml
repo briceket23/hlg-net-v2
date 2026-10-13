@@ -1,0 +1,56 @@
+# Data-preparation configuration (frozen at gate G2; its SHA-256 is written into every output digest)
+# Paths match the layout   raw_data/{mp_idb/{images,labels}, BBBC041/malaria/{images,training.json,test.json}, cell_images}
+# cell_images (NIH) is not used by the stage-only study. raw_data/config.yaml is the old HLG-Net config (unused).
+paths:
+  mpidb_images: raw_data/mp_idb/images        # searched recursively by file stem; gt/ and __MACOSX/ ignored
+  mpidb_labels: raw_data/mp_idb/labels        # YOLO-seg *.txt, one per image (16 species_stage classes)
+  label_names:  raw_data/mp_idb/data.yaml     # if absent, looked up in labels/ and its parents
+  bbbc041:      raw_data/BBBC041/malaria      # training.json, test.json, images/
+  out:          data                    # manifests/, crops/, qc/, tables/ are written below this
+  splits:       splits
+
+label_source: "YOLO-seg polygons, 16 classes; source: <fill in>; per-parasite stage by <fill in or unknown>; 71 rare crops QC by CBFT 2026-10-12"
+
+mpidb:
+  expected_image_size: [2592, 1944]   # warn if an image differs
+  min_area_px: 100                    # polygons smaller than this are excluded (reason AREA)
+  phash_hamming_max: 4                # near-duplicate candidate threshold on 64-bit pHash
+  dup_min_corr: 0.95                  # candidate confirmed if thumbnail correlation >= this
+  group_unit: slide                   # slide | image ; slide = filename prefix before the first '-'
+
+crop:
+  size: 256              # fixed window at native resolution, centred on the object box centre
+  oversize_margin: 1.10  # objects larger than the window: crop side*margin, then downscale (flagged)
+  pad: median            # padding colour outside the image = per-image median RGB
+
+bbbc041:
+  keep: [ring, trophozoite, schizont, gametocyte]
+  min_stage_cells_flag: 30
+  mpidb_rbc_diameter_px: null   # set from `python -m malprep rbc-scale` (after checking its overlays)
+                                # to also write magnification-matched sensitivity crops
+
+nih:                      # NIH cell set: transfer study + split-protocol experiment (not the HLG-Net study)
+  root: raw_data/cell_images                  # Parasitized/, Uninfected/
+  mapping_parasitized: raw_data/cell_images/patientid_cellmapping_parasitized.csv
+  mapping_uninfected:  raw_data/cell_images/patientid_cellmapping_uninfected.csv
+  merge_patients:                             # same patient under two IDs (two microscopes)
+    - [C47P8thinOriginalOlympusCX21, C47P8thin_Original_Motic]
+  split:
+    fractions: [0.625, 0.165, 0.21]           # 125 / 33 / 42 of 200 patient groups, stratified by patient type
+    seed: 2026
+    import_csv: null                          # set to the transfer study's frozen patient split to reuse it
+
+qc:
+  random_common_per_stage: 100   # random ring/trophozoite crops shown for QC (all rare crops are shown)
+  sheet_cols: 10
+  seed: 7
+
+splits:
+  K: 5
+  repeats: [1, 2, 3]
+  split_seed_base: 100        # repeat r uses seed 100 + r
+  inner_K: 5                  # inner validation = fold 0 of a K=5 assignment on the outer training part
+  n_candidates: 300           # outer: best of N randomised rare-bucket assignments (balance + coverage)
+  n_inner_candidates: 100     # inner: best of N, inner-val share close to 1/inner_K
+  repeat_overlap_weight: 0.25 # penalty per test fold identical to an earlier repeat's (keeps repeats distinct)
+  rare_stages: [G, S]         # bucket order: gametocyte first, then schizont

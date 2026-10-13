@@ -1,0 +1,65 @@
+{
+ "fractions": [
+  0.625,
+  0.165,
+  0.21
+ ],
+ "imported_from": null,
+ "leakage": {
+  "part_cell": {
+   "cells": {
+    "test": 5911,
+    "train": 17542,
+    "val": 4105
+   },
+   "fields_in_>1_partition": 1394,
+   "patients_in_>1_partition": 200,
+   "patients_per_partition": {
+    "test": 200,
+    "train": 200,
+    "val": 200
+   }
+  },
+  "part_field": {
+   "cells": {
+    "test": 5908,
+    "train": 17539,
+    "val": 4111
+   },
+   "fields_in_>1_partition": 0,
+   "patients_in_>1_partition": 191,
+   "patients_per_partition": {
+    "test": 164,
+    "train": 197,
+    "val": 128
+   }
+  },
+  "part_patient": {
+   "cells": {
+    "test": 5911,
+    "train": 17542,
+    "val": 4105
+   },
+   "fields_in_>1_partition": 0,
+   "patients_in_>1_partition": 0,
+   "patients_per_partition": {
+    "test": 42,
+    "train": 125,
+    "val": 33
+   }
+  }
+ },
+ "manifest_sha256": "22784dfac4401684bd8f83fc6194db514699fc30e024b061c1bf7f6d964a0fe4",
+ "provenance": {
+  "commit": "no-git",
+  "config": "configs/data.yaml",
+  "config_sha256": "932ecebbbc36bfdcd70e19de4432efa6f761db655fcf072ac2a35bc0dbe6c281",
+  "created": "2026-10-12T17:15:06",
+  "numpy": "2.2.6",
+  "pandas": "2.3.3",
+  "pillow": "12.3.0",
+  "platform": "Windows-10-10.0.26300-SP0",
+  "python": "3.10.11"
+ },
+ "seed": 2026
+}

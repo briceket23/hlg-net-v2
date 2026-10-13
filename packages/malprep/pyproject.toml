@@ -1,0 +1,13 @@
+[project]
+name = "malprep"
+version = "2.0.0"
+description = "Data preparation for the HLG-Net confirmatory study (MP-IDB + BBBC041): protocol Steps 2-5"
+requires-python = ">=3.9"
+dependencies = ["malcore>=2.0.0", "numpy>=1.24", "pandas>=2.0", "pillow>=10.0", "scipy>=1.10", "pyyaml>=6.0"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["malprep"]

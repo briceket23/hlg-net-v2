@@ -1,0 +1,14 @@
+[project]
+name = "malexp"
+version = "2.0.0"
+description = "Training, nested selection and evaluation for the HLG-Net confirmatory study: protocol Steps 6-12"
+requires-python = ">=3.9"
+dependencies = ["malcore>=2.0.0", "malprep>=2.0.0", "torch>=2.1", "timm>=0.9", "pyarrow>=12", "pyyaml>=6",
+                "numpy>=1.24", "pandas>=2.0", "pillow>=10.0"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["malexp"]

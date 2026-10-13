@@ -1,0 +1,5 @@
+# Root project file: tooling only. The code lives in four installable packages under packages/.
+[tool.pytest.ini_options]
+testpaths = ["packages/malcore/tests", "packages/malprep/tests", "packages/malexp/tests", "packages/malanalysis/tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]

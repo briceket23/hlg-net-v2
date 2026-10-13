@@ -1,0 +1,33 @@
+# Analysis configuration (Steps 13-14). Frozen together with analysis/analysis_plan.md at gate G4.
+runs_root: runs/slide                 # primary analysis: slide-grouped matrix, MobileViT-XXS
+unit: slide
+backbone: mobilevit_xxs               # backbone tag of the run folders (runs/<unit>/<arm>/<tag>/r{r}_f{k}/c{i})
+repeats: [1, 2, 3]
+folds: [0, 1, 2, 3, 4]
+manifest: data/manifests/cells_final.csv
+splits_dir: splits
+coverage_table: data/tables/fold_coverage_slide.csv
+complexity_table: analysis/complexity.csv
+external_data_table: data/tables/table5a_external_data.csv
+out: analysis
+arms:
+  treatment: M-full
+  control: "B*"                       # the fold's selected rebalanced baseline (from runs/<unit>/selection.csv)
+  mechanism: M-aux
+  ladder: [B0, B1, B2, B3, B4, B5, B6]
+  ablations: [ABL-noaux, ABL-detach, ABL-coordattn]
+  optional: [M-prob]
+stats:
+  rho: 0.25                           # n_test / n_train of the outer split (Nadeau & Bengio correction)
+  alpha: 0.05
+  delta_min: 0.02                     # smallest effect of interest
+  sigma_d_assumed: [0.02, 0.03]       # assumed range for the a priori power statement
+  n_boot: 2000
+  boot_seed: 2026
+  power: 0.8
+external:
+  low_support_n: 30                   # a stage with fewer cells is flagged low-support
+  subsets: [train, test]              # official BBBC041 subsets, always reported separately
+sensitivity:
+  replication_runs_root: runs/slide_effb0    # EfficientNet-B0 replication (Tier 4), if run
+  image_unit_runs_root: runs/image           # image-grouped splits, if run

@@ -1,0 +1,30 @@
+B0:
+- lr: 0.0003
+- lr: 0.001
+B1:
+- lr: 0.0003
+- lr: 0.001
+B2:
+- lr: 0.0003
+- lr: 0.001
+B3:
+- lr: 0.0003
+- lr: 0.001
+B4:
+- crt_head_lr: 0.001
+- crt_head_lr: 0.01
+B5:
+- lambda_species: 0.3
+- lambda_species: 1.0
+B6:
+- lr: 0.0003
+- lr: 0.001
+M-aux:
+- lambda_gate: 0.15
+- lambda_gate: 0.5
+M-full:
+- lambda_gate: 0.15
+- lambda_gate: 0.5
+M-prob:
+- lambda_prior: 0.0
+- lambda_prior: 1.0

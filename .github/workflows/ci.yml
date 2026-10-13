@@ -1,0 +1,27 @@
+name: tests
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install (CPU torch)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install -r requirements/dev.txt
+          python -m pip install -e packages/malcore -e packages/malprep -e packages/malexp -e packages/malanalysis
+      - name: Frozen arm configs match digests (gate G4)
+        run: python -c "from malexp.config import verify_arms; b = verify_arms('configs/arms'); assert not b, b; print('arms ok')"
+      - name: Training code never reads BBBC041 (Step 12 check)
+        run: |
+          ! grep -il "bbbc" packages/malexp/malexp/data.py packages/malexp/malexp/losses.py packages/malexp/malexp/models.py packages/malexp/malexp/select.py packages/malexp/malexp/config.py
+      - name: Tests (Step 8)
+        run: python -m pytest

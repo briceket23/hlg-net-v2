@@ -1,0 +1,13 @@
+[project]
+name = "malcore"
+version = "2.0.0"
+description = "Shared constants, hashing, provenance and metrics for the HLG-Net confirmatory study"
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.24", "pandas>=2.0", "pyyaml>=6.0"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["malcore"]
