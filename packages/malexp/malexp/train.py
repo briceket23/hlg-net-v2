@@ -263,7 +263,7 @@ class Trainer:
             HeldoutGuard.allowed = False
         self._write_meta(res, provenance)
         if self.log:                                          # a resumed finalize keeps the training log
-            pd.DataFrame(self.log).to_csv(self.run_dir / "log.csv", index=False)
+            pd.DataFrame(self.log).to_csv(self.run_dir / "log.csv", index=False, lineterminator="\n")
         return res
 
     def _write_preds(self, name, df, loader, T):
@@ -311,4 +311,5 @@ class Trainer:
                 "innerval_summary": {k: v for k, v in res["innerval"].items() if k != "confusion"},
                 "test_summary_written": True,
                 **(provenance or {})}
-        (self.run_dir / "meta.json").write_text(json.dumps(meta, indent=1, default=str) + "\n")
+        with open(self.run_dir / "meta.json", "w", encoding="utf-8", newline="\n") as f:
+            f.write(json.dumps(meta, indent=1, default=str) + "\n")

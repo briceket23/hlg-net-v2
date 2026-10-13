@@ -247,6 +247,16 @@ def test_augmentation_streams_are_per_sample_and_reproducible(toy):
     assert torch.equal(CropDataset(df, cfg, train=False)[0][0], CropDataset(df, cfg, train=False)[0][0])
 
 
+def test_dataset_and_loader_pickle_for_spawn_workers(toy):
+    """Windows DataLoader workers start with `spawn`: the dataset (and its transform) must pickle."""
+    import pickle
+    from malprep.folds import get_partition
+    df = get_partition(toy, "slide", 1, 0, "inner_train").head(8)
+    ds = CropDataset(df, TINY.with_(input_size=32), train=True, seed=1)
+    ds2 = pickle.loads(pickle.dumps(ds))
+    assert len(ds2) == len(ds) and ds2[0][0].shape == ds[0][0].shape
+
+
 def test_training_code_never_touches_bbbc041():
     """Step 12 check: no BBBC041 path is read by training or tuning code."""
     import malexp.data, malexp.losses, malexp.models, malexp.select, malexp.config, malexp.train

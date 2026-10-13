@@ -31,7 +31,7 @@ runs/<unit>/                 queue.csv, selection.csv, <arm>/<backbone>/r{r}_f{k
 analysis/                    analysis_plan.md (+ .sha256), stats_log.json, table*.tex|csv, fig*.pdf, complexity.csv
 logs/deviations.md           Step 16 deviations log (reproduced in the supplement)
 docs/                        protocol.md, architecture.md, review_findings.md
-tools/                       install.sh, dry_run.sh, run_matrix.sh
+tools/                       install.{sh,ps1}, dry_run.{sh,ps1}, run_matrix.{sh,ps1}
 .github/workflows/ci.yml     tests on CPU, arm-digest check, "training never reads BBBC041" grep
 ```
 
@@ -42,11 +42,49 @@ git clone https://github.com/briceket23/hlg-net-v2 && cd hlg-net-v2
 python -m pip install --index-url https://download.pytorch.org/whl/cpu torch   # CPU wheel; on the GPU machine install the CUDA build instead
 python -m pip install -r requirements/dev.txt
 python -m pip install -e packages/malcore -e packages/malprep -e packages/malexp -e packages/malanalysis
-python -m pytest            # 61 tests, CPU, ~3 min (Step 8 tests, pipeline tests, analysis on a synthetic 180-run tree)
+python -m pytest            # 62 tests, CPU, ~3 min (Step 8 tests, pipeline tests, analysis on a synthetic 180-run tree)
 ```
 
-`make install`, `make test`, `make freeze-env` wrap the same commands. Pin the environment on the GPU
-machine with `python -m pip freeze > env/freeze.txt` (Step 1).
+`make install`, `make test`, `make freeze-env` wrap the same commands on Linux/macOS. Pin the environment
+on the GPU machine with `python -m pip freeze > env/freeze.txt` (Step 1).
+
+### Windows 11 (the GPU machine: RTX 4050 laptop)
+
+Use PowerShell from the repository root; every `python -m ...` command in this README is identical on
+Windows (paths may use `\` or `/`). The `.sh` helpers have `.ps1` twins in `tools\`.
+
+```powershell
+git clone https://github.com/briceket23/hlg-net-v2
+cd hlg-net-v2
+py -3.10 -m venv .venv                      # Python 3.10 or 3.11; the pilot used 3.10.11
+.\.venv\Scripts\Activate.ps1               # if blocked: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+python -m pip install --upgrade pip
+python -m pip install --index-url https://download.pytorch.org/whl/cu124 torch   # CUDA build (pilot: torch 2.6.0+cu124)
+python -m pip install -r requirements\dev.txt
+python -m pip install -e packages\malcore -e packages\malprep -e packages\malexp -e packages\malanalysis
+python -m pytest                            # same 62 tests, CPU
+python -m pip freeze > env\freeze.txt        # Step 1 pinning
+```
+
+or in one go: `powershell -ExecutionPolicy Bypass -File tools\install.ps1 -Cuda cu124`.
+The matrix runs with `powershell -ExecutionPolicy Bypass -File tools\run_matrix.ps1`.
+
+Windows notes:
+
+- **Line endings.** `.gitattributes` forces LF on checkout, so the hashed files (`configs/arms/*.yaml`,
+  `splits/**/*.json`, `digests.txt`, manifests) keep the digests recorded on any OS, whatever your
+  `core.autocrlf` setting. Do not open and re-save them in an editor that converts to CRLF. Every file
+  the code writes uses LF and forward-slash paths.
+- **`make` is not available** by default; use the `python -m ...` commands above or `tools\*.ps1`.
+- **DataLoader workers** start with `spawn` on Windows: each of the 4 workers re-imports torch at the
+  start of a run (a few seconds), and datasets must be picklable (tested). Set `num_workers` in the arm
+  YAMLs lower if the laptop runs out of RAM; it does not change any result.
+- **GPU driver** is read with `nvidia-smi` (on the PATH with the NVIDIA driver) into `meta.json`.
+- **QC decisions.** Record them with `python -m malprep qc-mark ...` rather than Excel: French-locale
+  Excel saves `qc.csv` with `;` separators (the reader tolerates it, but `qc-mark` is safer).
+- **Long paths.** Run folders are short (`runs\slide\ABL-coordattn\mobilevit_xxs\r1_f0\c0\`), so the
+  260-character limit is not reached; keep the repository near the drive root all the same.
+- `.venv\` is ignored by git.
 
 ## Run order (one command per protocol step)
 
@@ -144,13 +182,13 @@ prediction, gate, species head for B5, `image_group`, `config_sha`, `split_sha`,
 
 ## Tests (Step 8)
 
-`python -m pytest` runs 61 tests on CPU: metrics against scikit-learn (100 random sets), ECE against a
+`python -m pytest` runs 62 tests on CPU: metrics against scikit-learn (100 random sets), ECE against a
 reference, each flag toggles exactly one thing, boost off ⇔ M-aux, boost starts at 0.25 and is applied
 before logit adjustment, gate gradient reaches the backbone iff not detached, cRT phase 2 freezes gate
 and boost, τ = 0 is CE, zero LDAM margin is scaled cosine CE, shift invariance, C-HMCNN consistency and
 float32 loss, M-prob sums to 1, sampler frequencies and sampled prevalence, selection tie rules, B6
 rule and fixed budgets, arm YAML export/verification, idempotent selection log, held-out guard,
-per-sample augmentation streams, "training code never touches BBBC041", every arm overfits 64 crops,
+per-sample augmentation streams, datasets pickle for Windows spawn workers, "training code never touches BBBC041", every arm overfits 64 crops,
 the nested smoke run of all 13 arms with meta/prediction provenance and resume, digest mismatch blocks
 training, 37-variant preflight, complexity and determinism commands; the malprep pipeline tests on a
 synthetic toy dataset (manifest, duplicates, crops, QC, Table 1, BBBC041, splits, gate, freeze, lock);

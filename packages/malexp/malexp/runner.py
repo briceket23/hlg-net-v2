@@ -66,7 +66,7 @@ class FoldRunner:
             fit = {"best": best, "config_sha": job["cfg"].sha256, "diverged": diverged, "reruns": reruns,
                    "init_from": init_from and str(init_from), "phases": tr.phase_log,
                    "train_start_time": tr.start_time, "train_elapsed_s": round(__import__("time").time() - tr.t0, 1)}
-            pd.DataFrame(tr.log).to_csv(rd / "log.csv", index=False)
+            pd.DataFrame(tr.log).to_csv(rd / "log.csv", index=False, lineterminator="\n")
             job["cfg"].save(rd / "config.yaml")
             if diverged and reruns == 0:                      # rerun once with the same seed, keep the log
                 shutil.copy(rd / "log.csv", rd / "log_diverged_attempt1.csv")

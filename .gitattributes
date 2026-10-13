@@ -1,0 +1,21 @@
+# Force LF on checkout on every OS: the arm YAMLs, split JSONs, digests and manifests are hashed, and a
+# CRLF conversion on Windows would change every digest (git's core.autocrlf is overridden by this file).
+* text=auto eol=lf
+*.py text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.csv text eol=lf
+*.txt text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+*.ps1 text eol=lf
+*.tex text eol=lf
+*.toml text eol=lf
+Makefile text eol=lf
+# binary
+*.png binary
+*.jpg binary
+*.parquet binary
+*.pt binary
+*.pdf binary
