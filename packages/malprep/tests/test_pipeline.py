@@ -225,6 +225,20 @@ def test_gate_freeze_and_lock(cfg, capsys):
     finally:
         t.write_bytes(orig)
     assert gate(cfg) == 0
+    # a deliberate config change: plain gate fails, `freeze --amend --reason` re-records it and keeps the history
+    cp = Path(cfg["_path"]); orig_cfg = cp.read_bytes()
+    try:
+        cp.write_bytes(orig_cfg.replace(b"synthetic toy data", b"synthetic toy data (source recorded)"))
+        cfg2 = load_config(cp)
+        assert gate(cfg2) == 1
+        assert freeze(cfg2, amend=True, reason="") == 1 and freeze(cfg2, amend=True, reason="label_source recorded") == 0
+        import json
+        rec = json.loads((out / "manifests" / "FROZEN.json").read_text())
+        assert rec["amendments"][0]["reason"] == "label_source recorded" and rec["first_frozen"]
+        assert any(k.endswith("data_cfg.yaml") for k in rec["amendments"][0]["changed"])
+        assert gate(cfg2) == 0
+    finally:
+        cp.write_bytes(orig_cfg)
     (out / "manifests" / "FROZEN.json").unlink()
 
 

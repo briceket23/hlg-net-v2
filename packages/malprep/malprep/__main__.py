@@ -43,8 +43,9 @@ def _tracked_files(cfg: dict) -> list[Path]:
     return [p for p in files if p.exists()]
 
 
-def gate(cfg: dict) -> int:
-    """REQUIRED checks fail the gate; ADVISORY checks print WARN and do not."""
+def gate(cfg: dict, amending: bool = False) -> int:
+    """REQUIRED checks fail the gate; ADVISORY checks print WARN and do not.
+    amending=True (freeze --amend): changed frozen files are listed, not failed; the amendment records them."""
     from .splits import verify
     from .crops import verify_reproducible
     from .qc import read_qc
@@ -60,7 +61,8 @@ def gate(cfg: dict) -> int:
     if fz.exists():
         rec = json.loads(fz.read_text())
         changed = [k for k, v in rec["files"].items() if not Path(k).exists() or sha256_file(k) != v]
-        chk("frozen files unchanged since freeze", not changed, changed[:5])
+        chk("frozen files unchanged since freeze" + (" (amending: listed, not enforced)" if amending else ""),
+            not changed, changed[:5], required=not amending)
         if (md / "crops.csv").exists():
             cr = pd.read_csv(md / "crops.csv")
             bad = [r.cell_id for r in cr.itertuples() if not Path(r.crop_path).exists() or sha256_file(r.crop_path) != r.crop_sha256]
@@ -142,7 +144,7 @@ def freeze(cfg: dict, amend: bool = False, reason: str = "") -> int:
         print("--amend needs --reason"); return 1
     import os
     os.environ["MALPREP_UNFREEZE"] = "1" if amend else os.environ.get("MALPREP_UNFREEZE", "")
-    if gate(cfg) != 0:
+    if gate(cfg, amending=amend) != 0:
         print("\nnot frozen: fix the FAIL lines first"); return 1
     files = {p.as_posix(): sha256_file(p) for p in _tracked_files(cfg)}
     rec = {"files": files, "provenance": provenance(cfg), "amendments": []}
