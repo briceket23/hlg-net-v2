@@ -1,6 +1,6 @@
 # Analysis plan (frozen before any confirmatory run; protocol Steps 13-14)
 
-Timestamp: 2026-10-13T12:40:27  ·  commit: HEAD (dirty)
+Timestamp: 2026-10-13T12:42:57  ·  commit: d2e0a8a84d833c5a0bdaad6fb7962d832ba99d45
 configs/analysis.yaml SHA-256: 3e8d54112f957b99735c4aa2de126435939ddd249aaf7599ed9410df6ffb1cea
 malanalysis package SHA-256: 92b511f9ea2d5d1ef583d64ef238422e7fa12663ba91498ae799c979942dd6e6
 
